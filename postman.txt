@@ -1,0 +1,104 @@
+--LIBRARY--
+
+1. Create Library
+http://localhost:8080/owner/library/create
+
+{
+    "id": 3,
+    "name": "Disha",
+    "creator_id": 103
+}
+
+2. Delete library
+http://localhost:8080/owner/library/delete
+
+{
+    "id": 6
+}
+   
+------------------------------------------------------------------
+
+--ADD USER--
+http://localhost:8080/owner/create
+
+{
+    "id": 1,
+    "name":"Praveen",
+    "email": "prav@gmail.com",
+    "contact_number": 9876544329,
+    "role":"Admin",
+    "lib_id":101
+}
+
+---------------------------------------------------------------------
+
+--ADMIN----
+1. Add Book
+http://localhost:8080/admin/book/create
+
+{
+    "isbn":111888863,
+    "lib_id":111,
+    "title":"A House for Mr. Biswas",
+    "authors" :"V.S. Naipaul",
+    "publisher":"Anshu Keshav",
+    "version":"Old",
+    "total_copies":11,
+    "available_copies":4
+}
+
+2. Delete Book
+http://localhost:8080/admin/book/delete
+
+{
+    "isbn":443388863
+}
+
+3. Search Book  (postman response showing book:null)
+http://localhost:8080/user/book/search
+
+{
+    "id":7,
+    "title": "A Sense of Time",
+    "authors": "H.S. Vatsyayan",
+    "publisher": "Gita Mehta"
+}
+
+4. Update Book
+
+
+-------------------------------------------------
+--USER--
+
+1. Raise issue
+http://localhost:8080/user/raiseissue
+
+{
+    "issue_id" : 1,
+    "isbn" : 111,
+    "reader_id" : 1,
+    "issue_approver_id" : 101,
+    "issue_status" :"Approve",
+    "issue_date" : "12/02/2024",
+    "expected_return_date": "04/03/2024",
+    "return_date" : "03/03/2024",
+    "return_approver_id" : 1
+}
+
+2. Request event
+http://localhost:8080/user/request/create
+
+{
+    "req_id" : 7,
+    "book_id" : 114,
+    "reader_id" : 6,
+    "request_date" :"18/04/2024",
+    "approval_date" :"28/04/2024",
+    "approver_id" : 4,
+    "request_type": "Book requirement"
+}
+
+
+
+
+
