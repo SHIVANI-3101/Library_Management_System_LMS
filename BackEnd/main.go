@@ -37,24 +37,31 @@ func main() {
 	config.AllowOrigins = []string{"*"}
 	router.Use(cors.New(config))
 
+	// BOOKS REQUEST HANDLING
+	router.POST("admin/book/create", addBook)
+	router.POST("admin/book/update", updateBook)
+	router.GET("admin/book/delete/:id", removeBook)
+	router.GET("user/book/search/:query", searchBook)
+	router.GET("user/books", getAllBooks)
+	router.GET("admin/specific-book/:id", getBookData)
+
 	//CREATE LIBRARY
-	router.POST("/owner/library/create", createLibrary)
+	router.POST("owner/library/create", createLibrary)
+	router.POST("owner/library/update", updateLibrary)
+	router.GET("owner/library/delete/:id", removeLibrary)
+	router.GET("owner/libraries", getAllLibrary)
+	router.GET("owner/library/search/:query", searchLibrary)
+	router.GET("owner/library/admin/:id", getAdminData)
+	router.POST("owner/library/admin/:id", setAdminData)
+	router.GET("owner/library/:id", getLibraryData)
+
 	// router.POST("admin/library/update", addUser)
-	router.DELETE("owner/library/delete", deleteLibrary)
 	// router.POST("admin/library/search", addUser)
 
 	//CREATE USER
 	router.POST("/owner/create", addUser)
 	// router.POST("/owner/update", addUser)
 	router.DELETE("/owner/delete", deleteUser)
-
-	//BOOKS
-	router.POST("admin/book/create", addBook)
-	router.POST("admin/book/update", updateBook)
-	router.GET("admin/book/delete/:id", removeBook)
-	router.GET("user/book/search", searchBook)
-	router.GET("user/books", getAllBooks)
-	router.GET("admin/specific-book/:id", getBookData)
 
 	//REQUESTS CRUD
 	router.POST("user/request/create", requestEvent)

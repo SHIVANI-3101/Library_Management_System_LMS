@@ -10,12 +10,41 @@ import (
 //ADD USER API
 
 type Users struct {
-	ID            int    `json:"id"`
-	Name          string `json:"name"`
-	Email         string `json:"email"`
-	ContactNumber int    `json:"contact_number"`
-	Role          string `json:"role"`
-	LibID         int    `json:"lib_id"`
+	ID            int     `db:"ID" json:"id"`
+	Name          string  `db:"Name" json:"name"`
+	Email         string  `db:"Email" json:"email"`
+	ContactNumber int     `db:"ContactNumber" json:"contact_number"`
+	Role          string  `db:"Role" json:"role"`
+	LibID         int     `db:"LibID" json:"lib_id"`
+	Password      *string `db:"PASSWORD" json:"pass"`
+}
+
+func getAdminData(c *gin.Context) {
+	// Get the library ID from the request parameters
+	libraryID := c.Param("id")
+
+	// Connect to the database
+	db, err := sqlx.Connect("sqlite3", "Lib.db")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer db.Close()
+
+	// Execute the query to fetch the data of the specific library
+	var user Users
+	if err := db.Get(&user, "SELECT * FROM Users WHERE LibID = ? AND Role='Admin'", libraryID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the fetched data as JSON response
+	c.JSON(http.StatusOK, user)
+}
+
+func setAdminData(c *gin.Context)
+{
+	
 }
 
 func addUser(c *gin.Context) {

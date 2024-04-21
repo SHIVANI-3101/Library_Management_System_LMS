@@ -132,11 +132,7 @@ func removeBook(c *gin.Context) {
 // SEARCH BOOK API
 
 func searchBook(c *gin.Context) {
-	var book BookInventory
-	if err := c.ShouldBindQuery(&book); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	query := c.Param("query")
 
 	db, err := sqlx.Connect("sqlite3", "Lib.db")
 	if err != nil {
@@ -145,7 +141,7 @@ func searchBook(c *gin.Context) {
 	}
 	defer db.Close()
 
-	rows, err := db.Queryx("SELECT * FROM BookInventory WHERE Title = ?", book.Title)
+	rows, err := db.Queryx("SELECT * FROM BookInventory WHERE Title LIKE '%' || ? || '%' OR Authors LIKE '%' || ? || '%' OR Publisher LIKE '%' || ? || '%'", query, query, query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

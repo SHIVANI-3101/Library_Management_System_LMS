@@ -10,14 +10,33 @@ function initialSetup()
     if(action=='create')
     {
         // Let the cotrol pass
+        document.getElementById('bookcreationform').addEventListener('submit',function(e)
+        {
+            e.preventDefault();
+            bookAction();
+        })
     }
     else if(action=='edit')
     {
+        document.getElementById('bookcreationform').addEventListener('submit',function(e)
+        {
+            e.preventDefault();
+            bookAction();
+        })
         getSpecificBookData();
     }
     else if(action==null)
     {
         getAllData();
+        document.getElementById('searchform').addEventListener('submit',function(e)
+        {
+            e.preventDefault();
+            Search();
+        })
+        document.getElementById('resetButton').addEventListener('click',function(e)
+        {
+            location.reload();
+        })
     }
 }
 
@@ -89,7 +108,7 @@ function getSpecificBookData()
 
 function bookAction(event)
 {
-    event.preventDefault();
+    
     let url = null;
     let data = null;
 
@@ -145,63 +164,61 @@ function bookAction(event)
                 if(action=='create')
                 {
                     alert('Book created successfully');
+                    window.location.href = 'booklisting.html';
                 }
                 else if(action=='edit')
                 {
                     alert('Book updated successfully');
+                    window.location.href = 'booklisting.html';
                 }  
             }
         })
         .catch(error => console.error('Error fetching data:', error));
 }
 
-function Search(e)
+function Search()
 {
-    e.preventDefault();
-
     let search_query = document.getElementById('searchbox').value;
 
-    const url = 'http://localhost:8080/user/book/search';
+    const url = `http://localhost:8080/user/book/search/${search_query}`;
 
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('tbody');
-            tableBody.innerHTML = ''; // Clear existing table rows
+    .then(response => response.json())
+    .then(data => {
+        const tableBody = document.querySelector('tbody');
+        tableBody.innerHTML = ''; // Clear existing table rows
 
-            console.log(data);
-            
-            if (!data.books ) 
-            {
+        console.log(data);
+
+        if (data && Array.isArray(data.books) && data.books.length > 0) {
+            data.books.forEach(item => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="8" style="text-align: center;">No books present</td>`;
+
+                // Populate table cells
+                row.innerHTML = `
+                    <td>${item.isbn}</td>
+                    <td>${item.title}</td>
+                    <td>${item.authors}</td>
+                    <td>${item.publisher}</td>
+                    <td>${item.version}</td>
+                    <td>${item.total_copies}</td>
+                    <td>${item.available_copies}</td>
+                    <td>
+                        <a class="btn btn-primary" href="createbook.html?action=edit&id=${item.id}">Edit</a>
+                        <a class="btn btn-danger" href="#" data-book-id="${item.id}" onclick="deleteBook(event)">Delete</a>
+                    </td>
+                `;
+
                 tableBody.appendChild(row);
-            } 
-            else 
-            {
-                data.forEach(item => {
-                    const row = document.createElement('tr');
-                    
-                    // Populate table cells
-                    row.innerHTML = `
-                        <td>${item.isbn}</td>
-                        <td>${item.title}</td>
-                        <td>${item.authors}</td>
-                        <td>${item.publisher}</td>
-                        <td>${item.version}</td>
-                        <td>${item.total_copies}</td>
-                        <td>${item.available_copies}</td>
-                        <td>
-                            <a class="btn btn-primary" href="createbook.html?action=edit&id=${item.id}">Edit</a>
-                            <a class="btn btn-danger" href="#">Delete</a>
-                        </td>
-                    `;
-                    
-                    tableBody.appendChild(row);
-                });
-            }
-        })
-        .catch(error => console.error('Error fetching data:', error));
+            });
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="8" style="text-align: center;">No books present</td>`;
+            tableBody.appendChild(row);
+        }
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
 }
 
 function deleteBook(event) 
