@@ -1,4 +1,4 @@
-module example.com/task
+module librarymanager
 
 go 1.18
 
