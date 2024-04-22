@@ -99,7 +99,7 @@ func createLibrary(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Library created successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
 // DELETE LIBRARY API
@@ -143,5 +143,5 @@ func updateLibrary(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Library created successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }

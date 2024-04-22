@@ -52,7 +52,8 @@ func main() {
 	router.GET("owner/libraries", getAllLibrary)
 	router.GET("owner/library/search/:query", searchLibrary)
 	router.GET("owner/library/admin/:id", getAdminData)
-	router.POST("owner/library/admin/:id", setAdminData)
+	router.POST("owner/library/admin/create", addUser)
+	router.POST("owner/library/admin/update", updateUser)
 	router.GET("owner/library/:id", getLibraryData)
 
 	// router.POST("admin/library/update", addUser)

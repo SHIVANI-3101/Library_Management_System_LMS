@@ -115,7 +115,7 @@ function fetchAdministratorData(libraryID)
         .catch(error => console.error('Error fetching data:', error));
 }
 
-function libraryAction(event)
+function libraryAction()
 {
     
     let url = null;
@@ -123,17 +123,11 @@ function libraryAction(event)
 
     if(action=="create")
     {
-        url = `http://localhost:8080/admin/library/create`;
+        url = `http://localhost:8080/owner/library/create`;
 
         data = {
-            isbn: parseInt(document.getElementById('isbn').value),
-            lib_id: 11,
-            title: document.getElementById('title').value,
-            authors: document.getElementById('authors').value,
-            publisher: document.getElementById('publisher').value,
-            version: document.getElementById('version').value,
-            total_copies: parseInt(document.getElementById('total-copies').value),
-            available_copies: parseInt(document.getElementById('available-copies').value)
+            name: document.getElementById('library-name').value,
+            creator_id: 5,
         }
     }
     else if(action=="edit")
@@ -141,8 +135,8 @@ function libraryAction(event)
         url = 'http://localhost:8080/owner/library/update';
 
         data = {
-            id: parseInt(document.getElementById('library-id').value),
-            name: document.getElementById('library-name').value
+            name: document.getElementById('library-name').value,
+            creator_id: 5,
         }
     }
 
@@ -163,20 +157,58 @@ function libraryAction(event)
         .then(data => {
             if(data.message=='success')
             {
+                if(action=="create")
+                {
+                    alert('Library created successfully')
+                    url = `http://localhost:8080/owner/library/admin/create`;
+
+                    data = {
+                        name: document.getElementById('admin-name').value,
+                        email: document.getElementById('admin-email').value,
+                        contact_number: 994848838,
+                        role: 'Admin',
+                        lib_id:2,
+                        pass: document.getElementById('password').value
+                    }
+                }
+                else if(action=="edit")
+                {
+                    alert('Library updated successfully')
+                    url = 'http://localhost:8080/owner/library/admin/update';
+
+                    data = {
+                        name: document.getElementById('admin-name').value,
+                        email: document.getElementById('admin-email').value,
+                        contact_number: 994848838,
+                        role: 'Admin',
+                        lib_id:2,
+                        pass: document.getElementById('password').value
+                    }
+                }
+
+                console.log(data);
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                };
+
                 fetch(url, requestOptions)
                     .then(response => response.json())
                     .then(data => {
                         if(data.message=='success')
                         {
-                            
                             if(action=='create')
                             {
-                                alert('Library created successfully');
+                                alert('Admin created successfully');
                                 window.location.href = 'librarylisting.html';
                             }
                             else if(action=='edit')
                             {
-                                alert('library updated successfully');
+                                alert('Admin updated successfully');
                                 window.location.href = 'librarylisting.html';
                             }  
                         }

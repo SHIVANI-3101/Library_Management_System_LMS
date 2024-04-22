@@ -42,11 +42,6 @@ func getAdminData(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func setAdminData(c *gin.Context)
-{
-	
-}
-
 func addUser(c *gin.Context) {
 	var user Users
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -61,13 +56,36 @@ func addUser(c *gin.Context) {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO Users (Name, Email, ContactNumber, Role, LibID) VALUES (?,?,?,?,?)", user.ID, user.Name, user.Email, user.ContactNumber, user.Role, user.LibID)
+	_, err = db.Exec("INSERT INTO Users (Name, Email, ContactNumber, Role, LibID, PASSWORD) VALUES (?,?,?,?,?,?)", user.Name, user.Email, user.ContactNumber, user.Role, user.LibID, user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User added successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
+}
+
+func updateUser(c *gin.Context) {
+	var user Users
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db, err := sqlx.Connect("sqlite3", "Lib.db")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec("UPDATE Users SET Name=?, Email=?, ContactNumber=?, Role=?, LibID=?, PASSWORD=? WHERE ID=?", user.Name, user.Email, user.ContactNumber, user.Role, user.LibID, user.Password, user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
 //DELETE USER API
