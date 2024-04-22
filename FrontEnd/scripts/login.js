@@ -3,10 +3,10 @@ document.getElementById('loginform').addEventListener('submit', function(e) {
 
     const url = `http://localhost:8080/user/login`;
 
-    data = {
+    const data = {
         "email": document.getElementById('email').value,
         "password": document.getElementById('password').value,
-    }
+    };
 
     const requestOptions = {
         method: 'POST',
@@ -17,28 +17,43 @@ document.getElementById('loginform').addEventListener('submit', function(e) {
     };
 
     fetch(url, requestOptions)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.error) {
-                alert(data.error); 
-            } 
-            else if (data.message === 'Login successful') 
-            {
+            if (data.message === 'Login successful' && data.token) {
+                // Set the token as a cookie
+                setCookie('token', data.token, 1); // Expires in 1 day
                 alert('Login successful');
 
-                if(data.role=='Creator')
-                {
+                // Redirect based on user role
+                if(data.role == 'Creator') {
                     window.location.href = 'librarylisting.html';
-                }
-                else if(data.role=='Admin')
-                {
+                } else if(data.role == 'Admin') {
                     window.location.href = 'booklisting.html';
-                }
-                else if(data.role=='Reader')
-                {
+                } else if(data.role == 'Reader') {
                     window.location.href = 'bookrequestlisting.html';
                 }
+            } else {
+                alert(data.error || 'Login failed');
             }
         })
-        .catch(error => console.error('Error fetching data:', error));
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            alert('Login failed');
+        });
 });
+
+// Function to set a cookie
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}

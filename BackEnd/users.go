@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -66,48 +65,6 @@ func addUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-// Login The User
-func loginUser(c *gin.Context) {
-	var loginRequest struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	// Bind the JSON request body to the loginRequest struct
-	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Get the database connection
-	db, err := sqlx.Connect("sqlite3", "Lib.db")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer db.Close()
-
-	// Query the database for the user's password and role
-	var user Users
-	err = db.Get(&user, "SELECT Password, Role FROM Users WHERE Email = ?", loginRequest.Email)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Please enter a registered email"})
-		return
-	} else if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Compare the stored password with the provided password
-	if *user.Password != loginRequest.Password {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Please enter the correct password"})
-		return
-	}
-
-	// If email exists and password matches, return success along with the role
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "role": user.Role})
-}
-
 func updateUser(c *gin.Context) {
 	var user Users
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -133,25 +90,25 @@ func updateUser(c *gin.Context) {
 
 //DELETE USER API
 
-func deleteUser(c *gin.Context) {
-	var user Users
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// func deleteUser(c *gin.Context) {
+// 	var user Users
+// 	if err := c.ShouldBindJSON(&user); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	db, err := sqlx.Connect("sqlite3", "Lib.db")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer db.Close()
+// 	db, err := sqlx.Connect("sqlite3", "Lib.db")
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	defer db.Close()
 
-	_, err = db.Exec("DELETE FROM Users WHERE ID = ?", user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+// 	_, err = db.Exec("DELETE FROM Users WHERE ID = ?", user.ID)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
-}
+// 	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+// }

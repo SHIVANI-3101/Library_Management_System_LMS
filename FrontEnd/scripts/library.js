@@ -1,5 +1,6 @@
 let libraryID = null;
 let action = null;
+const token = getCookie('token');
 
 function initialSetup()
 {
@@ -40,24 +41,28 @@ function initialSetup()
     }
 }
 
-function getAllData() 
-{
-    const url = 'http://localhost:8080/owner/libraries';
+function getAllData() {
 
-    fetch(url)
+    const url = 'http://localhost:8080/owner/libraries';
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    };
+
+    fetch(url, requestOptions)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.querySelector('tbody');
             tableBody.innerHTML = ''; // Clear existing table rows
             
-            if (data.length === 0) 
-            {
+            if (data.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `<td colspan="8">No libraries present</td>`;
                 tableBody.appendChild(row);
-            } 
-            else 
-            {
+            } else {
                 let serialNo = 1;
                 data.forEach(item => {
                     const row = document.createElement('tr');
@@ -87,7 +92,15 @@ function getSpecificlibraryData()
     document.getElementById('libraryformtitle').innerText = "Update library";
     document.getElementById('libraryformbutton').innerText = "Update";
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    };
+
+    fetch(url,requestOptions)
         .then(response => response.json())
         .then(data => {
             document.getElementById('library-id').value = data.id;
@@ -104,7 +117,15 @@ function fetchAdministratorData(libraryID)
     document.getElementById('libraryformtitle').innerText = "Update library";
     document.getElementById('libraryformbutton').innerText = "Update";
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    };
+
+    fetch(url,requestOptions)
         .then(response => response.json())
         .then(data => {
             document.getElementById('admin-id').value = data.id;
@@ -117,7 +138,6 @@ function fetchAdministratorData(libraryID)
 
 function libraryAction()
 {
-    
     let url = null;
     let data = null;
 
@@ -147,7 +167,8 @@ function libraryAction()
     const requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(data)
     };
@@ -192,7 +213,8 @@ function libraryAction()
                 const requestOptions = {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
                     },
                     body: JSON.stringify(data)
                 };
@@ -226,7 +248,15 @@ function Search()
 
     const url = `http://localhost:8080/owner/library/search/${search_query}`;
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    };
+
+    fetch(url,requestOptions)
     .then(response => response.json())
     .then(data => {
         const tableBody = document.querySelector('tbody');
@@ -271,6 +301,10 @@ function deletelibrary(event)
         // Send a request to delete the library
         fetch(`http://localhost:8080/owner/library/delete/${libraryId}`, {
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            }
         })
         .then(response => {
             if (response.ok) {
@@ -282,6 +316,17 @@ function deletelibrary(event)
         })
         .catch(error => console.error('Error deleting library:', error));
     }
+}
+
+function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=');
+        if (cookieName === name) {
+            return cookieValue;
+        }
+    }
+    return null;
 }
 
 initialSetup();
