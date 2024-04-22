@@ -60,7 +60,8 @@ func main() {
 	// router.POST("admin/library/search", addUser)
 
 	//CREATE USER
-	router.POST("/owner/create", addUser)
+	router.POST("/user/create", addUser)
+	router.POST("/user/login", loginUser)
 	// router.POST("/owner/update", addUser)
 	router.DELETE("/owner/delete", deleteUser)
 
