@@ -137,7 +137,7 @@ func updateLibrary(c *gin.Context) {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO Library (Name, CreatorID) VALUES (?,?)", library.Name, library.CreatorID)
+	_, err = db.Exec("UPDATE Library SET Name = ? WHERE ID = ?", library.Name, library.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

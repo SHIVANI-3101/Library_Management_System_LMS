@@ -137,6 +137,7 @@ function libraryAction()
         data = {
             name: document.getElementById('library-name').value,
             creator_id: 5,
+            id: 1
         }
     }
 
