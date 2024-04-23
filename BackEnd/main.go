@@ -55,8 +55,8 @@ func main() {
 		admin.POST("/book/update", updateBook)
 		admin.GET("/book/delete/:id", removeBook)
 		admin.GET("/specific-book/:id", getBookData)
-		admin.POST("/user/request/create", requestEvent)
 		admin.POST("/request/update", updateUser)
+		admin.GET("/books", getAllBooks)
 		// admin.POST("/request/delete", deleteUser)
 	}
 
@@ -74,13 +74,16 @@ func main() {
 		owner.GET("/library/:id", getLibraryData)
 	}
 
-	users := router.Group("/users")
+	users := router.Group("/user")
 	users.Use(authMiddleware("Reader"))
 	{
 		users.GET("/book/search/:query", searchBook)
 		users.GET("/books", getAllBooks)
 		users.POST("/raiseissue", raiseIssueRequest)
+		admin.POST("/request/create", requestEvent)
 	}
+
+	router.Static("/qrcodes", "./qrcodes")
 
 	router.Run("localhost:8080")
 }

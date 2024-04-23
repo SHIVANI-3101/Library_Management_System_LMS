@@ -1,10 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+
+	// "bytes"
+	// "image/png"
+	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/skip2/go-qrcode"
 )
 
 //...........ADMIN...........
@@ -85,7 +93,49 @@ func addBook(c *gin.Context) {
 		return
 	}
 
+	// Generate QR code from book data
+	qrData := fmt.Sprintf("Title: %s\nAuthors: %s\nPublisher: %s\nISBN: %s", book.Title, book.Authors, book.Publisher, strconv.Itoa(book.ISBN))
+	qrCode, err := qrcode.Encode(qrData, qrcode.Medium, 256)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate QR code"})
+		return
+	}
+
+	// Save QR code image to file
+	qrFileName := fmt.Sprintf("%s.png", book.Title)
+	err = saveQRCodeToFile(qrCode, qrFileName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save QR code to file"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
+}
+
+func saveQRCodeToFile(qrCode []byte, fileName string) error {
+	// Prepend the folder name to the file name
+	fileNameWithPath := filepath.Join("qrcodes", fileName)
+
+	file, err := os.Create(fileNameWithPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.Write(qrCode)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteQRCodeFile(fileName string) error {
+	filePath := filepath.Join("qrcodes", fileName)
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func updateBook(c *gin.Context) {
@@ -101,6 +151,28 @@ func updateBook(c *gin.Context) {
 		return
 	}
 	defer db.Close()
+
+	err = deleteQRCodeFile(fmt.Sprintf("%s.png", book.Title))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete QR code file"})
+		return
+	}
+
+	// Generate QR code from book data
+	qrData := fmt.Sprintf("Title: %s\nAuthors: %s\nPublisher: %s\nISBN: %s", book.Title, book.Authors, book.Publisher, strconv.Itoa(book.ISBN))
+	qrCode, err := qrcode.Encode(qrData, qrcode.Medium, 256)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate QR code"})
+		return
+	}
+
+	// Save QR code image to file
+	qrFileName := fmt.Sprintf("%s.png", book.Title)
+	err = saveQRCodeToFile(qrCode, qrFileName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save QR code to file"})
+		return
+	}
 
 	_, err = db.Exec("UPDATE BookInventory SET ISBN=?, LibID=?, Title=?, Authors=?, Publisher=?, Version=?, TotalCopies=?, AvailableCopies=? WHERE ID=?", book.ISBN, book.LibID, book.Title, book.Authors, book.Publisher, book.Version, book.TotalCopies, book.AvailableCopies, book.ID)
 	if err != nil {
@@ -120,6 +192,22 @@ func removeBook(c *gin.Context) {
 		return
 	}
 
+	// Retrieve book details to get the title for QR code deletion
+	var book BookInventory
+	err = db.Get(&book, "SELECT Title FROM BookInventory WHERE ID = ?", bookID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete QR code file
+	err = deleteQRCodeFile(fmt.Sprintf("%s.png", book.Title))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete QR code file"})
+		return
+	}
+
+	// Delete book from database
 	db.Exec("DELETE FROM BookInventory WHERE ID = ?", bookID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

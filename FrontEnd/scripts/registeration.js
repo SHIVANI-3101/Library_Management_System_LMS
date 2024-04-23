@@ -27,14 +27,7 @@ document.getElementById('registerationform').addEventListener('submit',function(
             if(data.message=='success')
             {
                 alert('Thankyou for registering with us');
-                if(document.getElementById('rolevalue').value=='Creator')
-                {
-                    window.location.href = 'librarylisting.html';
-                }
-                else if(document.getElementById('rolevalue').value=='Reader')
-                {
-                    window.location.href = 'bookrequestlisting.html';
-                }
+                window.location.href = 'login.html';
             }
         })
         .catch(error => console.error('Error fetching data:', error));

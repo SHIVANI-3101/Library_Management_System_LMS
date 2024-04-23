@@ -1,5 +1,6 @@
 let bookID = null;
 let action = null;
+const token = getCookie('token');
 
 function initialSetup()
 {
@@ -42,9 +43,17 @@ function initialSetup()
 
 function getAllData() 
 {
-    const url = 'http://localhost:8080/user/books';
+    const url = 'http://localhost:8080/admin/books';
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    };
+
+    fetch(url,requestOptions)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.querySelector('tbody');
@@ -70,9 +79,10 @@ function getAllData()
                         <td>${item.version}</td>
                         <td>${item.total_copies}</td>
                         <td>${item.available_copies}</td>
-                        <td>
+                        <td class="col-2">
                             <a class="btn btn-primary" href="createbook.html?action=edit&id=${item.id}">Edit</a>
                             <a class="btn btn-danger" href="#" data-book-id="${item.id}" onclick="deleteBook(event)">Delete</a>
+                            <a class="btn btn-info text-light viewQRCodeLink" href="#" data-book-title="${item.title}">QR</a>
                         </td>
                     `;
                     
@@ -90,7 +100,15 @@ function getSpecificBookData()
     document.getElementById('bookformtitle').innerText = "Update Book";
     document.getElementById('bookformbutton').innerText = "Update";
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    };
+
+    fetch(url,requestOptions)
         .then(response => response.json())
         .then(data => {
             document.getElementById('book_id').value = data.id;
@@ -150,7 +168,8 @@ function bookAction(event)
     const requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(data)
     };
@@ -182,7 +201,15 @@ function Search()
 
     const url = `http://localhost:8080/user/book/search/${search_query}`;
 
-    fetch(url)
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        },
+    };
+
+    fetch(url,requestOptions)
     .then(response => response.json())
     .then(data => {
         const tableBody = document.querySelector('tbody');
@@ -206,6 +233,7 @@ function Search()
                     <td>
                         <a class="btn btn-primary" href="createbook.html?action=edit&id=${item.id}">Edit</a>
                         <a class="btn btn-danger" href="#" data-book-id="${item.id}" onclick="deleteBook(event)">Delete</a>
+                        <a class="btn btn-info viewQRCodeLink" href="#" data-book-title="${item.title}">View QR Code</a>
                     </td>
                 `;
 
@@ -230,6 +258,10 @@ function deleteBook(event)
         // Send a request to delete the book
         fetch(`http://localhost:8080/admin/book/delete/${bookId}`, {
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
         })
         .then(response => {
             if (response.ok) {
@@ -242,5 +274,40 @@ function deleteBook(event)
         .catch(error => console.error('Error deleting book:', error));
     }
 }
+
+function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=');
+        if (cookieName === name) {
+            return cookieValue;
+        }
+    }
+    return null;
+}
+
+// document.querySelectorAll('.viewQRCodeLink').forEach(link => {
+//     link.addEventListener('click', function(event) {
+//         alert('clicked')
+//         event.preventDefault(); // Prevent default link behavior
+        
+//         const bookTitle = this.dataset.bookTitle;
+//         const url = `http://localhost:8080/qrcodes/${encodeURIComponent(bookTitle)}.jpg`;
+        
+//         window.open(url, '_blank');
+//     });
+// });
+
+document.addEventListener('click', function(event) {
+    // Check if the clicked element matches the desired selector
+    if (event.target.classList.contains('viewQRCodeLink')) {
+        event.preventDefault(); // Prevent default link behavior
+        
+        const bookTitle = event.target.dataset.bookTitle;
+        const url = `http://localhost:8080/qrcodes/${encodeURIComponent(bookTitle)}.png`;
+        
+        window.open(url, '_blank');
+    }
+});
 
 initialSetup();
