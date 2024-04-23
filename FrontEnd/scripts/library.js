@@ -189,7 +189,7 @@ function libraryAction()
                         email: document.getElementById('admin-email').value,
                         contact_number: 994848838,
                         role: 'Admin',
-                        lib_id:2,
+                        lib_id: data.library_id,
                         pass: document.getElementById('password').value
                     }
                 }

@@ -57,6 +57,7 @@ func main() {
 		admin.GET("/specific-book/:id", getBookData)
 		admin.POST("/request/update", updateUser)
 		admin.GET("/books", getAllBooks)
+		admin.GET("/book/search/:query", searchBook)
 		// admin.POST("/request/delete", deleteUser)
 	}
 

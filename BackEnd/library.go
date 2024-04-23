@@ -93,13 +93,15 @@ func createLibrary(c *gin.Context) {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO Library (Name, CreatorID) VALUES (?,?)", library.Name, library.CreatorID)
+	result, err := db.Exec("INSERT INTO Library (Name, CreatorID) VALUES (?,?)", library.Name, library.CreatorID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success"})
+	libraryID, _ := result.LastInsertId()
+
+	c.JSON(http.StatusOK, gin.H{"message": "success", "library_id": libraryID})
 }
 
 // DELETE LIBRARY API

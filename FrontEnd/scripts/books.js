@@ -199,7 +199,7 @@ function Search()
 {
     let search_query = document.getElementById('searchbox').value;
 
-    const url = `http://localhost:8080/user/book/search/${search_query}`;
+    const url = `http://localhost:8080/admin/book/search/${search_query}`;
 
     const requestOptions = {
         method: 'GET',
